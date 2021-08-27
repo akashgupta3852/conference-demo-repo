@@ -20,10 +20,14 @@ public class PersistenceConfiguration {
 	@Value("${h2_username}")
 	private String username;
 
+	@Value("${db_url}")
+	private String dbUrl;
+
+
 	@Bean
 	public DataSource dataSource() {
 		DataSourceBuilder builder = DataSourceBuilder.create();
-		builder.url("jdbc:h2:mem:conf");
+		builder.url(dbUrl);
 		builder.username(username + 123);
 		System.out.println("My custom datasource bean has been initialized and set");
 		return builder.build();
