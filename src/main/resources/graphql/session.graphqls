@@ -1,0 +1,44 @@
+"""
+This ia a Schema file.
+
+Notice there can only be one route query and one mutation type.
+
+Each file will contain all the query and all the mutation operations for the given type (i.e. "Session" here).
+
+Notice that the fields are typed. 
+These types can be scaler types like int, float, string, Boolean, ID, or any other reference type. 
+So here, sessionId is of type id, 
+		 sessionName is of type String, 
+		 sessionDescription is of type String, and 
+		 sessionLength is of type Integer. 
+		 
+This exclamation point here means the field is required. 
+
+And if we scroll down and we look at the brackets [Session], this means it's an array. 
+
+Every complex type in the graphql server is represented by a corresponding Java object, 
+so we have the Session type and we have the corresponding application Java object(class).
+
+Like with our RESTful API, there's an application repository that gives us the ability to 
+interact with the H2 in-memory database to create, read, or update or delete applications. 
+Now in a real-world scenario, you would have the business logic abstracted into a service 
+layer similar to how the RESTful API was designed.
+"""
+
+type Session {
+  sessionId: ID!
+  sessionName: String!
+  sessionDescription: String!
+  sessionLength: Int!
+}
+
+type Query {
+  findAllSessions: [Session]!
+  countSessions: Long!
+}
+
+type Mutation {
+  newSession(sessionName: String!, sessionDescription: String!, sessionLength: Int!) : Session!
+  deleteSession(sessionId:ID!) : Boolean
+  updateSessionDescription(sessionDescription: String!, sessionId:ID!) : Session!
+}

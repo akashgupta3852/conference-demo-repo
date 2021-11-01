@@ -13,8 +13,8 @@ import javax.persistence.ManyToMany;
 import java.io.Serializable;
 import java.util.List;
 
-@Entity (name = "sessions")
-@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
+@Entity(name = "sessions")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Session implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +35,12 @@ public class Session implements Serializable {
 	private List<Speaker> speakers;
 
 	public Session() {
+	}
+
+	public Session(String sessionName, String sessionDescription, Integer sessionLength) {
+		this.sessionName = sessionName;
+		this.sessionDescription = sessionDescription;
+		this.sessionLength = sessionLength;
 	}
 
 	public Long getSessionId() {
@@ -76,4 +82,11 @@ public class Session implements Serializable {
 	public void setSpeakers(List<Speaker> speakers) {
 		this.speakers = speakers;
 	}
+
+	@Override
+	public String toString() {
+		return "Session [sessionId=" + sessionId + ", sessionName=" + sessionName + ", sessionDescription="
+				+ sessionDescription + ", sessionLength=" + sessionLength + ", speakers=" + speakers + "]";
+	}
+
 }

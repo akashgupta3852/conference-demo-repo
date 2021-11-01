@@ -1,8 +1,9 @@
 package com.pluralsight.conferencedemo.controllers;
 
+import com.pluralsight.conferencedemo.exception.SessionException;
 import com.pluralsight.conferencedemo.models.Session;
-import com.pluralsight.conferencedemo.repositories.SessionRepository;
-import org.springframework.beans.BeanUtils;
+import com.pluralsight.conferencedemo.services.SessionService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -23,41 +25,52 @@ import java.util.List;
 public class SessionsController {
 
 	@Autowired
-	private SessionRepository sessionRepository;
+	private SessionService sessionService;
 
 	@GetMapping("/list")
 	public List<Session> getAll() {
-		return sessionRepository.findAll();
+		return sessionService.findAll();
 	}
 
 	@GetMapping("/list/{id}")
 	public Session getById(@PathVariable Long id) {
-		return sessionRepository.getOne(id);
+		try {
+			return sessionService.getById(id);
+		} catch (SessionException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
 	}
 
 	@PostMapping("/add")
 	@ResponseStatus(HttpStatus.CREATED) // it gives 201 when the method executes and finished
 	public Session create(@RequestBody Session session) {
-		return sessionRepository.saveAndFlush(session);
+		return sessionService.create(session);
 		// save methods only save the data but not committed to databases
 		// we use saveAndFlush methods for saving and committing it to databases
 	}
 
 	@RequestMapping(value = "{id}", method = RequestMethod.DELETE)
-	public void delete(@PathVariable Long id) {
+	public boolean delete(@PathVariable Long id) {
 		// Also needs to check for children record before deleting
-		sessionRepository.deleteById(id);
+		try {
+			sessionService.deleteById(id);
+			return true;
+		} catch (SessionException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
 	}
 
 	@PutMapping("{id}")
 	public Session update(@PathVariable Long id, @RequestBody Session session) {
 		// Because this is a PUT, we expect all attributes to be passed in. A PATCH
-		// would only need what portion of attributes to be updated
+		// would only need what has changed.
 		// TODO: Add validations that all attributes are passed in, otherwise return a
 		// 400 bad payload
-		Session existingSession = sessionRepository.getOne(id);
-		BeanUtils.copyProperties(session, existingSession, "session_id");
-		return sessionRepository.saveAndFlush(session);
+		try {
+			return sessionService.update(id, session);
+		} catch (SessionException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
 	}
 
 	// http://localhost:8082/api/v1/sessions/x/id?aa=9
